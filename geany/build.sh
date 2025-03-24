@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# Define project root
+# project root
 PROJECT_ROOT=$(dirname "$(realpath "$0")")
 BUILD_DIR="$PROJECT_ROOT/build"
 RELEASE_DIR="$PROJECT_ROOT/release"
 OUTPUT_EXE="$RELEASE_DIR/program"
 
-# Ensure release directory exists
+# check release directory exists
 if [ ! -d "$RELEASE_DIR" ]; then
     mkdir "$RELEASE_DIR"
 fi
 
-# Find all object files
+# find all object files
 OBJ_FILES=$(find "$BUILD_DIR" -type f -name "*.o")
 
-# Detect WxWidgets and OpenGL usage
+# Ddetect wx and opengl
 USES_OPENGL=$(grep -rIl --include=\*.{c,cpp,h} '^[^/]*#include <GL/' "$PROJECT_ROOT")
 USES_WXWIDGETS=$(grep -rIl --include=\*.{c,cpp,h} '^[^/]*#include <wx/' "$PROJECT_ROOT")
 
@@ -31,14 +31,14 @@ if [ -n "$USES_WXWIDGETS" ]; then
     echo "WxWidgets detected, adding flags: $WXWIDGETS_FLAGS"
 fi
 
-# Determine linker based on source types
+# determine linker based on source types
 HAS_CPP=$(find "$PROJECT_ROOT" -name "*.cpp")
 LINKER="gcc"
 if [ -n "$HAS_CPP" ]; then
     LINKER="g++"
 fi
 
-# Link object files
+# link .o
 if [ -n "$OBJ_FILES" ]; then
     $LINKER $OBJ_FILES -o "$OUTPUT_EXE" $OPENGL_FLAGS $WXWIDGETS_FLAGS
     echo "Build completed. Executable created at $OUTPUT_EXE"
